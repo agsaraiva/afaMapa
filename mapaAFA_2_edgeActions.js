@@ -12,6 +12,7 @@
 // set values in "compositionReady" funtion
 
 // Set a Global variable for the height of the stage
+
 var stageHeight; 
 var stageWidth;  
 
@@ -30,6 +31,8 @@ var imageText;
 var imageCount = 1;
 var numOfPhotos = 5;
 var photoPath;
+var nextButton;
+var prevButton;
 
 //Buttons 
 var closeBtn;
@@ -127,7 +130,7 @@ function hideTarget (posX, posY, speed){
 
 function initCrossHair()
 {
-	//alert('crep');
+
 	crssHairExt.css('opacity', '00');
    crssHairInt.css('opacity', '00');
 
@@ -212,8 +215,13 @@ function init (){
 
     // Get the actual dom element from the jquery object. Yeah! Its an array
     var element = sym.$('genPhoto')[0];
+   // var elementNextBtn = sym.getSymbol("next").$("nextRect")[0];
+    //var elementPrevBtn = sym.getSymbol("prev").$("prevRect")[0];
+
     //alert(element);
     var hammer = Hammer(element);
+    //var hammer = Hammer(elementNextBtn);
+    //var hammer = Hammer(elementPrevBtn);
     //alert(element);
 
     hammer.on("swipeleft", function(event) {
@@ -225,11 +233,49 @@ function init (){
 
           sym.$('next').click();
     });
+    
+   
 }
 
          // ready for filling global var stage dimentions
-         window.stageHeight = sym.$('Stage').height(); // Get value of the Stage height
-         window.stageWidth = sym.$('Stage').width(); // Get value of the Stage width
+         stageHeight = sym.$('Stage').height(); // Get value of the Stage height
+         stageWidth = sym.$('Stage').width(); // Get value of the Stage width
+
+         //Check if this function is obsolete :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+         // make a note out of this one
+         sym.$('Stage').css({
+
+         	"webkit-transform-origin":"0 0"
+
+         })
+
+         function scaleStage() {
+
+             var stage = sym.$('Stage'); // Set a reusable variable to reference the stage
+             var parent = sym.$('Stage').parent();
+             var parentWidth = stage.parent().width();
+
+             stageHeight = sym.$('Stage').height(); // Get value of the Stage height
+        		 stageWidth = sym.$('Stage').width(); // Get value of the Stage width
+        		 var ratio = (640 / 800); //this has to be changed eventually
+        		 var scalerado = (parentWidth/stageWidth);
+        		 var ref = sym.$('Ref');
+				ref.html(scalerado+' '+parentWidth+' '+stageWidth);
+         	stage.css('webkit-transform', 'scale('+scalerado+ ')');
+
+         }
+
+         // Make it happen when the browser resizes
+         $(window).on('resize', function(){ 
+         	 scaleStage(); 
+         });
+
+         // Make it happen when the page first loads
+         $(document).ready(function(){
+             scaleStage();
+         });
+
+         //-----------
 
          // ready for filling global var crosshair elements
          window.crssHairInt = sym.$("crossHairInt");
@@ -261,38 +307,22 @@ function init (){
 			button_7 = sym.$("button_7");
 			closeBtn = sym.$("closeBtn");
 
-			var crssInt = sym.createChildSymbol("crossHairInt", "Stage");
-			var crssExt = sym.createChildSymbol("crossHairExt", "Stage");
-
 			// Photo vars
 			genPhoto = sym.$("genPhoto");
 			imageText = sym.$("imageText");
 			imageText.html('this is the initial text');
 
+			nextButton = sym.getSymbol("next").$("nextRect");
+			prevButton = sym.getSymbol("prev").$("prevRect");
 
-			/*
-         // Check if this function is obsolete
-         function scaleStage() {
-             var stage = sym.$('Stage'); // Set a reusable variable to reference the stage
-             var stageWidth = stage.width(); // Get the stage width
-             var ratio = (640 / 800); //this has to be changed eventually
+			nextButton.css({'opacity': 0.0 });
+			prevButton.css({'opacity': 0.0 });
 
-         	stage.css('height', stageWidth * ratio+'px');
 
-         }
 
-         // Make it happen when the browser resizes
-         $(window).on('resize', function(){ 
-         	 scaleStage(); 
-         });
 
-         // Make it happen when the page first loads
-         $(document).ready(function(){
-             scaleStage();
-         });
 
-         //-----------
-         */
+
 
 
       });
@@ -378,27 +408,7 @@ function init (){
       //Edge binding end
   
 
-      Symbol.bindElementAction(compId, symbolName, "${_closeBtn}", "click", function(sym, e) {
-         // insert code for mouse click here
-         
-         var scale = 1;
-         var mapXposition = 0;
-         var mapYPosition = 0;
-         
-         window.scaleMapElems = [
-         									[window.map],
-         									mapXposition,
-         									mapYPosition,
-         									scale
-         								];
-         
-         var showPic = false;
-         
-         scaleMap(window.scaleMapElems, showPic);
-         showTargetOpacity = 0.4;
-
-      });
-      //Edge binding end
+      
 
       Symbol.bindElementAction(compId, symbolName, "${_button_7}", "mouseover", function(sym, e) {
          // insert code to be run when the mouse hovers over the object
@@ -415,8 +425,8 @@ function init (){
 
       Symbol.bindElementAction(compId, symbolName, "${_button_7}", "click", function(sym, e) {
          // insert code for mouse click here
-         window.scaleMapElems = [
-         									[window.map],
+         scaleMapElems = [
+         									[map],
          									bt7_position['mapPosX'],
          									bt7_position['mapPosY'],
          									bt7_position['scale']
@@ -428,7 +438,7 @@ function init (){
          
          loadSlideShow(photoPath, sliderText);
          
-         scaleMap(window.scaleMapElems, showThumb);
+         scaleMap(scaleMapElems, showThumb);
          hideTarget(bt7_position["posX"], bt7_position["posY"], 0.2);
          showTargetOpacity = 0;
 
@@ -448,19 +458,7 @@ function init (){
       });
       //Edge binding end
 
-      Symbol.bindSymbolAction(compId, symbolName, "creationComplete", function(sym, e) {
-         // insert code to be run when the symbol is created here
-         /*sym.changeText = function (myText){
-         	alert(myText);
-         	//sym.$('imageText').html(myText);
-         }*/
-         
-         
-         
-         
-
-      });
-      //Edge binding end
+      
 
       Symbol.bindElementAction(compId, symbolName, "${_next}", "click", function(sym, e) {
          // insert code for mouse click here
@@ -476,11 +474,69 @@ function init (){
       });
       //Edge binding end
 
+      
+
       Symbol.bindElementAction(compId, symbolName, "${_frame}", "touchmove", function(sym, e) {
          // insert code to be run when a user drags an object (for touch devices only)
          
       });
       //Edge binding end
+
+      
+
+      
+
+      Symbol.bindElementAction(compId, symbolName, "${_close}", "click", function(sym, e) {
+         // insert code for mouse click here
+         var scale = 1;
+         var mapXposition = 0;
+         var mapYPosition = 0;
+         
+         scaleMapElems = [
+         									[map],
+         									mapXposition,
+         									mapYPosition,
+         									scale
+         								];
+         
+         var showPic = false;
+         
+         scaleMap(scaleMapElems, showPic);
+         showTargetOpacity = 0.4;
+
+      });
+      //Edge binding end
+
+      Symbol.bindElementAction(compId, symbolName, "${_areaPrev}", "mouseover", function(sym, e) {
+         // insert code to be run when the mouse hovers over the object
+         
+         TweenMax.to(prevButton, 0.5, {css:{opacity:0.4}, ease:Sine.easeOut});
+
+      });
+      //Edge binding end
+
+      Symbol.bindElementAction(compId, symbolName, "${_areaNext}", "mouseover", function(sym, e) {
+         // insert code to be run when the mouse hovers over the object
+         
+         TweenMax.to(nextButton, 0.5, {css:{opacity:0.4}, ease:Sine.easeOut});
+
+      });
+      //Edge binding end 
+           Symbol.bindElementAction(compId, symbolName, "${_areaNext}", "mouseout", function(sym, e) {
+         // insert code to be run when the mouse is moved off the object
+         TweenMax.to(nextButton, 0.5, {css:{opacity:0.0}, ease:Sine.easeOut});
+
+      });
+      //Edge binding end
+
+      Symbol.bindElementAction(compId, symbolName, "${_areaPrev}", "mouseout", function(sym, e) {
+         // insert code to be run when the mouse is moved off the object
+         TweenMax.to(prevButton, 0.5, {css:{opacity:0.0}, ease:Sine.easeOut});
+
+      });
+      //Edge binding end
+
+
 
    })("stage");
    //Edge symbol end:'stage'
